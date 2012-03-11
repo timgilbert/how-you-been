@@ -4,4 +4,5 @@ bin/*
 include/*
 lib/*
 src/pyjade
+src/config.ini
 *.tmproj
