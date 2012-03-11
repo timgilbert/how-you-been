@@ -64,12 +64,13 @@ class FourSquareCallback(JadeHandler, FoursquareConfigHandler):
         # XXX handle an error here - foursquare will redir to callback?error=foo
         code = self.request.GET['code']
         url = self.foursquareAccessTokenUrl(code)
-        result = self.getFoursquareAccessToken(code)
+        accessCode = self.getFoursquareAccessToken(code)
         
         context = {
             'code': self.request.GET['code'],
-            'access_code': result,
-            'url': url
+            'access_code': accessCode,
+            'url': url,
+            'api': self.foursquareApiUrl('users/self/checkins', accessCode)
         }
         self.render_response('foursquare.jade', **context)
 
