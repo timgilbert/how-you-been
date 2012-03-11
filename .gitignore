@@ -4,5 +4,7 @@ bin/*
 include/*
 lib/*
 src/pyjade
-src/config.ini
+src/config/config.ini
+src/config/config.PROD.ini
+src/config/config.DEV.ini
 *.tmproj

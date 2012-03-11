@@ -41,12 +41,7 @@ class JadeHandler(webapp2.RequestHandler):
 
 class HomePage(JadeHandler, FoursquareConfigHandler):
     def get(self):
-        #client_id = self.app.config.get('file').get('foursquare', 'client_id')
-        context = {
-            'foo': 'Hello, world!',
-            'message': self.cfg('client_id')
-        }
-        self.render_response('index.jade', **context)
+        self.render_response('index.jade')
 
 class FourSquareRedirector(JadeHandler, FoursquareConfigHandler):
     # Per https://developer.foursquare.com/overview/auth.html
@@ -66,6 +61,7 @@ class FourSquareCallback(JadeHandler, FoursquareConfigHandler):
     code parameter on the query string.  We then need to request an access token from 
     foursquare, which will be returned to us in a JSON response body."""
     def get(self):
+        # XXX handle an error here - foursquare will redir to callback?error=foo
         code = self.request.GET['code']
         url = self.foursquareAccessTokenUrl(code)
         result = self.getFoursquareAccessToken(code)
@@ -78,7 +74,7 @@ class FourSquareCallback(JadeHandler, FoursquareConfigHandler):
         self.render_response('foursquare.jade', **context)
 
 deployedConfigFile = SafeConfigParser()
-deployedConfigFile.read('config.ini')
+deployedConfigFile.read('config/config.ini')
 
 app = webapp2.WSGIApplication(routes=[
          ('/', HomePage),
