@@ -1,0 +1,6 @@
+*.pyc
+*.swp
+bin/*
+include/*
+lib/*
+src/pyjade/*
