@@ -3,6 +3,23 @@ from ConfigParser import SafeConfigParser
 import webapp2
 from webapp2_extras import jinja2
 
+class FoursquareConfigHandler:
+    """This is a mixin class which has several convenience methods for 
+    constructing foursquare-related URL, based on the assumption that 
+    a configParser instance is in the app configuration."""
+    
+    def cfg(self, settingName):
+        return self.app.config.get('deployedConfigFile').get('foursquare', settingName)
+    
+    def foursquareRedirectUrl(self):
+        tmpl = string.Template('https://foursquare.com/oauth2/authenticate' +
+                   '?client_id=${client_id}' +
+                   '&response_type=code' + 
+                   '&redirect_uri=${callback}')
+               
+        return tmpl.substitute(client_id=self.cfg('client_id'),
+                               callback=self.cfg('callback'))
+        
 class JadeHandler(webapp2.RequestHandler):
     # Per http://stackoverflow.com/a/7081653/87990
     @staticmethod
@@ -20,23 +37,19 @@ class JadeHandler(webapp2.RequestHandler):
         rv = self.jinja2.render_template(_template, **context)
         self.response.write(rv)
 
-class HomePage(JadeHandler):
+class HomePage(JadeHandler, FoursquareConfigHandler):
     def get(self):
-        client_id = self.app.config.get('file').get('foursquare', 'client_id')
+        #client_id = self.app.config.get('file').get('foursquare', 'client_id')
         context = {
             'foo': 'Hello, world!',
-            'message': client_id
+            'message': self.cfg('client_id')
         }
         self.render_response('index.jade', **context)
 
-class FourSquareRedirector(webapp2.RequestHandler):
+class FourSquareRedirector(webapp2.RequestHandler, FoursquareConfigHandler):
     # Per https://developer.foursquare.com/overview/auth.html
     def post(self):
-        tmpl = string.Template('https://foursquare.com/oauth2/authenticate' +
-               '?client_id=${client_id}' +
-               '&response_type=code' + 
-               '&redirect_uri=${endpoint}')
-        url = tmpl.substitute(client_id='sorry_foursquare_dev_testing', endpoint='http://foo')
+        url = self.foursquareRedirectUrl()
         self.response.location = url
         #self.response.status = 302
         
@@ -51,13 +64,13 @@ class FourSquareCallback(webapp2.RequestHandler):
     def get(self):
         pass
 
-configFile = SafeConfigParser()
-configFile.read('config.ini')
+deployedConfigFile = SafeConfigParser()
+deployedConfigFile.read('config.ini')
 
 app = webapp2.WSGIApplication(routes=[
          ('/', HomePage),
          ('/foursquare-redirect', FourSquareRedirector),
          ('/foursquare-callback', FourSquareCallback)
         ], 
-        config={'file': configFile},
+        config={'deployedConfigFile': deployedConfigFile},
         debug=True)
