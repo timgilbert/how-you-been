@@ -1,4 +1,4 @@
-import string, urllib, urllib2
+import string, urllib, urllib2, logging
 from webapp2_extras import json
 
 class FoursquareException(Exception):
@@ -85,8 +85,14 @@ class FoursquareConfigHandler:
         """Given a partial foursquare API endpoint path and an auth token, 
         make a request to the endpoint, parse the result, and return it."""
         url = self.foursquareApiUrl(apiPath, accessToken)
-        httpResponse = urllib2.urlopen(url)
-        jsonResult = json.decode(httpResponse.read())
+        request = urllib2.urlopen(url)
+        content = request.read()
+        
+        # Criminy. http://stackoverflow.com/a/1020931/87990
+        encoding = request.headers['content-type'].split('charset=')[-1]
+        ucontent = unicode(content, encoding)
+        jsonResult = json.decode(ucontent)
+        jsonResult['encoding'] = encoding
         return self._checkForApiErrors(jsonResult)
     
     def _checkForApiErrors(self, jsonResult):

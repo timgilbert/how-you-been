@@ -1,8 +1,9 @@
 import os, string, logging, traceback, pprint, urllib
 from ConfigParser import SafeConfigParser
 import webapp2
-from webapp2_extras import jinja2
+from webapp2_extras import jinja2, json
 
+import Inspiration
 from FoursquareConfig import FoursquareConfigHandler
 
 class BaseHandler(webapp2.RequestHandler):
@@ -43,6 +44,16 @@ class JadeHandler(BaseHandler):
         rv = self.jinja2.render_template(_template, **context)
         self.response.write(rv)
         
+class JsonHandler(webapp2.RequestHandler):
+    """Base class for returning an object as pure json"""
+    # XXX should have some kind of error handler here, too
+    def render_response(self, item, **context):
+        indent = 1 if self.app.debug else 0
+        
+        self.response.content_type = "application/json"
+        content = json.encode(item, encoding='utf-8', ensure_ascii=False, indent=indent, **context)
+        self.response.write(content)
+        
 
 class HomePage(JadeHandler, FoursquareConfigHandler):
     def get(self):
@@ -56,13 +67,29 @@ class PlaylistHandler(JadeHandler, FoursquareConfigHandler):
         # This feels brittle
         items = checkins['response']['checkins']['items']
         
+        inspiration = Inspiration.find(items)
+        
         context = {
             'oauth':    oauth,
-            'checkins': checkins,
             'pretty':   pprint.pformat(items, 1, 120),
+            'inspiration':   pprint.pformat(inspiration, 1, 120),
+            'encoding':   checkins['encoding'],
             'debug':    self.app.debug
         }
         self.render_response('playlist.jade', **context)
+
+class InspirationHandler(JsonHandler, FoursquareConfigHandler):
+    # JSON version of above
+    def get(self):
+        oauth = self.request.GET['oauth']
+        checkins = self.getFoursquareCheckins(oauth)
+        
+        # This feels brittle
+        items = checkins['response']['checkins']['items']
+        
+        inspiration = Inspiration.find(items)
+        
+        self.render_response([i.to_dict() for i in inspiration])
 
 class FoursquareRedirector(JadeHandler, FoursquareConfigHandler):
     # Per https://developer.foursquare.com/overview/auth.html
@@ -75,7 +102,11 @@ class FoursquareRedirector(JadeHandler, FoursquareConfigHandler):
         self.response.write('<a href="' + url + '">' + url + '</a>')
     
     # Purely for debugging
-    def get(self): self.post()
+    def get(self): 
+        if self.app.debug: 
+            return self.post()
+        else:
+            self.response.status = 404
 
 class FoursquareCallback(JadeHandler, FoursquareConfigHandler):
     """Once a user accepts authentication on foursquare, they're sent back here with a 
@@ -98,7 +129,8 @@ app = webapp2.WSGIApplication(routes=[
          ('/', HomePage),
          ('/foursquare-redirect',   FoursquareRedirector),
          ('/foursquare-callback',   FoursquareCallback),
-         ('/playlist',              PlaylistHandler)
+         ('/playlist',              PlaylistHandler),
+         ('/inspiration.json',      InspirationHandler)
         ], 
         config={'deployedConfigFile': deployedConfigFile},
         debug=deployedConfigFile.getboolean('general', 'debug'))
