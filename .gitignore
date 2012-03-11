@@ -1,6 +1,6 @@
-*.pyc
+*.py[co]
 *.swp
 bin/*
 include/*
 lib/*
-src/pyjade/*
+src/pyjade
