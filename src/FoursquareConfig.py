@@ -1,11 +1,18 @@
-import string, urllib
+import string, urllib, urllib2
+from webapp2_extras import json
+
+class FoursquareException(Exception):
+    def __init__(self, value): self.value = value
+    def __str__(self): return repr(self.value)
 
 class FoursquareConfigHandler:
     """This is a mixin class which has several convenience methods for 
     constructing foursquare-related URL, based on the assumption that 
     a configParser instance is in the app configuration."""
 
-    # This memoization stuff might be more elaborate than it's worth
+    # This memoization stuff is almost certainly more elaborate than it's worth
+    # I haven't even thought through it from a class / instance perspective
+    # Plus it could be abstracted.  Oh well.
     def _poke(self, name, value):
         if not hasattr(self, '_memo_dict'): 
             self._memo_dict = {}
@@ -41,3 +48,17 @@ class FoursquareConfigHandler:
                '&redirect_uri=' + self.cfg('callback') + 
                '&code=' + urllib.quote(code))
         return url
+    
+    def getFoursquareAccessToken(self, code):
+        """Given an access code, make an access token to foursquare and return 
+        the access token they give us.  Raise an error if they return one."""
+        url = self.foursquareAccessTokenUrl(code)
+        httpResponse = urllib2.urlopen(url)
+        result = json.decode(httpResponse.read())
+        
+        if 'access_token' in result:
+            access_token = str(result['access_token'])
+        else:
+            raise FoursquareException(result)
+            
+        return access_token

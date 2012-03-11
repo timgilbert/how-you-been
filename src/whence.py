@@ -1,4 +1,4 @@
-import os, string
+import os, string, logging
 from ConfigParser import SafeConfigParser
 import webapp2
 from webapp2_extras import jinja2
@@ -21,6 +21,23 @@ class JadeHandler(webapp2.RequestHandler):
         # Renders a template and writes the result to the response.
         rv = self.jinja2.render_template(_template, **context)
         self.response.write(rv)
+        
+    def handle_exception(self, exception, debug):
+        # Log the error.
+        logging.exception(exception)
+
+        context = {'exception': exception}
+
+        # If the exception is a HTTPException, use its error code.
+        # Otherwise use a generic 500 error code.
+        http_status = 500
+        if isinstance(exception, webapp2.HTTPException):
+            http_status = exception.code
+        
+        self.response.set_status(http_status)
+        context['http_status'] = http_status
+        
+        self.render_response('error.jade', **context)
 
 class HomePage(JadeHandler, FoursquareConfigHandler):
     def get(self):
@@ -31,7 +48,7 @@ class HomePage(JadeHandler, FoursquareConfigHandler):
         }
         self.render_response('index.jade', **context)
 
-class FourSquareRedirector(webapp2.RequestHandler, FoursquareConfigHandler):
+class FourSquareRedirector(JadeHandler, FoursquareConfigHandler):
     # Per https://developer.foursquare.com/overview/auth.html
     def post(self):
         url = self.foursquareRedirectUrl()
@@ -39,17 +56,22 @@ class FourSquareRedirector(webapp2.RequestHandler, FoursquareConfigHandler):
         #self.response.status = 302
         
         #self.response.content_type = "text/html"
-        self.response.write('<a href="' + url + '">' + url + '</a>' )
+        self.response.write('<a href="' + url + '">' + url + '</a>')
+    
+    # Purely for debugging
+    def get(self): self.post()
 
-class FourSquareCallback(webapp2.RequestHandler, FoursquareConfigHandler):
+class FourSquareCallback(JadeHandler, FoursquareConfigHandler):
     """Once a user accepts authentication on foursquare, they're sent back here with a 
     code parameter on the query string.  We then need to request an access token from 
     foursquare, which will be returned to us in a JSON response body."""
     def get(self):
         code = self.request.GET['code']
         url = self.foursquareAccessTokenUrl(code)
+        result = self.getFoursquareAccessToken(code)
         self.response.write('<h1>Code: ' + code + '</h1>')
-        self.response.write('<a href="' + url + '">' + url + '</a>')
+        self.response.write('<p><a href="' + url + '">' + url + '</a></p>')
+        self.response.write('<p>response: ' + result + '</p>')
 
 deployedConfigFile = SafeConfigParser()
 deployedConfigFile.read('config.ini')
