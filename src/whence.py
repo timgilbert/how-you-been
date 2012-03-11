@@ -41,13 +41,15 @@ class FourSquareRedirector(webapp2.RequestHandler, FoursquareConfigHandler):
         #self.response.content_type = "text/html"
         self.response.write('<a href="' + url + '">' + url + '</a>' )
 
-class FourSquareCallback(webapp2.RequestHandler):
+class FourSquareCallback(webapp2.RequestHandler, FoursquareConfigHandler):
     """Once a user accepts authentication on foursquare, they're sent back here with a 
     code parameter on the query string.  We then need to request an access token from 
-    foursquare, which will be returned to us in a JSON response body.
-    """
+    foursquare, which will be returned to us in a JSON response body."""
     def get(self):
-        pass
+        code = self.request.GET['code']
+        url = self.foursquareAccessTokenUrl(code)
+        self.response.write('<h1>Code: ' + code + '</h1>')
+        self.response.write('<a href="' + url + '">' + url + '</a>')
 
 deployedConfigFile = SafeConfigParser()
 deployedConfigFile.read('config.ini')
