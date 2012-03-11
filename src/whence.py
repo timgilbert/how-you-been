@@ -1,4 +1,5 @@
 import os, string
+from ConfigParser import SafeConfigParser
 import webapp2
 from webapp2_extras import jinja2
 
@@ -21,7 +22,11 @@ class JadeHandler(webapp2.RequestHandler):
 
 class HomePage(JadeHandler):
     def get(self):
-        context = {'message': 'Hello, world!'}
+        client_id = self.app.config.get('file').get('foursquare', 'client_id')
+        context = {
+            'foo': 'Hello, world!',
+            'message': client_id
+        }
         self.render_response('index.jade', **context)
 
 class FourSquareRedirector(webapp2.RequestHandler):
@@ -38,10 +43,21 @@ class FourSquareRedirector(webapp2.RequestHandler):
         #self.response.content_type = "text/html"
         self.response.write('<a href="' + url + '">' + url + '</a>' )
 
-class FourSquareEndpoint(webapp2.RequestHandler):
-    pass
+class FourSquareCallback(webapp2.RequestHandler):
+    """Once a user accepts authentication on foursquare, they're sent back here with a 
+    code parameter on the query string.  We then need to request an access token from 
+    foursquare, which will be returned to us in a JSON response body.
+    """
+    def get(self):
+        pass
 
-app = webapp2.WSGIApplication(
-        [('/', HomePage),
-         ('/foursquare-redirect', FourSquareRedirector)], 
+configFile = SafeConfigParser()
+configFile.read('config.ini')
+
+app = webapp2.WSGIApplication(routes=[
+         ('/', HomePage),
+         ('/foursquare-redirect', FourSquareRedirector),
+         ('/foursquare-callback', FourSquareCallback)
+        ], 
+        config={'file': configFile},
         debug=True)
