@@ -27,6 +27,7 @@ class BaseHandler(webapp2.RequestHandler):
 
 class JadeHandler(BaseHandler):
     # Per http://stackoverflow.com/a/7081653/87990
+    """Base class which passes contexts to pyjade templates for rendering"""
     @staticmethod
     def jade_factory(app):
         j = jinja2.Jinja2(app)
@@ -89,14 +90,6 @@ class FoursquareCallback(JadeHandler, FoursquareConfigHandler):
         
         self.response.location = '/playlist?oauth=' + urllib.quote(accessCode)
         self.response.status = 302
-        
-        # context = {
-        #     'code': self.request.GET['code'],
-        #     'access_code': accessCode,
-        #     'url': url,
-        #     'api': self.foursquareApiUrl('users/self/checkins', accessCode)
-        # }
-        # self.render_response('foursquare.jade', **context)
 
 deployedConfigFile = SafeConfigParser()
 deployedConfigFile.read('config/config.ini')
