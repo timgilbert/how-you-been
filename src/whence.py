@@ -1,4 +1,4 @@
-import os, string, logging, traceback
+import os, string, logging, traceback, pprint, urllib
 from ConfigParser import SafeConfigParser
 import webapp2
 from webapp2_extras import jinja2
@@ -47,7 +47,23 @@ class HomePage(JadeHandler, FoursquareConfigHandler):
     def get(self):
         self.render_response('index.jade')
 
-class FourSquareRedirector(JadeHandler, FoursquareConfigHandler):
+class PlaylistHandler(JadeHandler, FoursquareConfigHandler):
+    def get(self):
+        oauth = self.request.GET['oauth']
+        checkins = self.getFoursquareCheckins(oauth)
+        
+        # This feels brittle
+        items = checkins['response']['checkins']['items']
+        
+        context = {
+            'oauth':    oauth,
+            'checkins': checkins,
+            'pretty':   pprint.pformat(items, 1, 120),
+            'debug':    self.app.debug
+        }
+        self.render_response('playlist.jade', **context)
+
+class FoursquareRedirector(JadeHandler, FoursquareConfigHandler):
     # Per https://developer.foursquare.com/overview/auth.html
     def post(self):
         url = self.foursquareRedirectUrl()
@@ -60,31 +76,36 @@ class FourSquareRedirector(JadeHandler, FoursquareConfigHandler):
     # Purely for debugging
     def get(self): self.post()
 
-class FourSquareCallback(JadeHandler, FoursquareConfigHandler):
+class FoursquareCallback(JadeHandler, FoursquareConfigHandler):
     """Once a user accepts authentication on foursquare, they're sent back here with a 
     code parameter on the query string.  We then need to request an access token from 
-    foursquare, which will be returned to us in a JSON response body."""
+    foursquare, which will be returned to us in a JSON response body.  Once we get the 
+    token, we'll redirect the user to another page with the token in the URL."""
     def get(self):
         # XXX handle an error here - foursquare will redir to callback?error=foo
         code = self.request.GET['code']
         url = self.foursquareAccessTokenUrl(code)
         accessCode = self.getFoursquareAccessToken(code)
         
-        context = {
-            'code': self.request.GET['code'],
-            'access_code': accessCode,
-            'url': url,
-            'api': self.foursquareApiUrl('users/self/checkins', accessCode)
-        }
-        self.render_response('foursquare.jade', **context)
+        self.response.location = '/playlist?oauth=' + urllib.quote(accessCode)
+        self.response.status = 302
+        
+        # context = {
+        #     'code': self.request.GET['code'],
+        #     'access_code': accessCode,
+        #     'url': url,
+        #     'api': self.foursquareApiUrl('users/self/checkins', accessCode)
+        # }
+        # self.render_response('foursquare.jade', **context)
 
 deployedConfigFile = SafeConfigParser()
 deployedConfigFile.read('config/config.ini')
 
 app = webapp2.WSGIApplication(routes=[
          ('/', HomePage),
-         ('/foursquare-redirect', FourSquareRedirector),
-         ('/foursquare-callback', FourSquareCallback)
+         ('/foursquare-redirect',   FoursquareRedirector),
+         ('/foursquare-callback',   FoursquareCallback),
+         ('/playlist',              PlaylistHandler)
         ], 
         config={'deployedConfigFile': deployedConfigFile},
         debug=deployedConfigFile.getboolean('general', 'debug'))

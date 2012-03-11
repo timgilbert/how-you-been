@@ -68,6 +68,11 @@ class FoursquareConfigHandler:
             
         return access_token
     
+    def getFoursquareCheckins(self, accessToken):
+        """Get the list of the signed-in user's checkins, per 
+        https://developer.foursquare.com/docs/users/checkins"""
+        return self.getFoursquareApi('users/self/checkins', accessToken)
+    
     def foursquareApiUrl(self, apiPath, accessToken):
         """Return a complete URL to the relevant foursquare API endpoint."""
         baseUrl = 'https://api.foursquare.com/v2/' + apiPath # TODO: make this a cfg value

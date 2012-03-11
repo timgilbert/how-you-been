@@ -3,13 +3,12 @@ html(lang="en")
   head
     script(type="text/javascript" src="static/jquery-1.7.1.js")
     link(rel="stylesheet" type="text/css" href="static/style.css")
-    title Oops, an error occurred
+    title How You Been? Playlist
   
   body
-    h1 Whoah dude
-    
-    p Error: {{exception}}
-    
+    h1 Playlist
+
     if debug:
-      #traceback
-        pre {{traceback}}
+      #debug
+        pre {{pretty}}
+      
