@@ -69,9 +69,13 @@ class FourSquareCallback(JadeHandler, FoursquareConfigHandler):
         code = self.request.GET['code']
         url = self.foursquareAccessTokenUrl(code)
         result = self.getFoursquareAccessToken(code)
-        self.response.write('<h1>Code: ' + code + '</h1>')
-        self.response.write('<p><a href="' + url + '">' + url + '</a></p>')
-        self.response.write('<p>response: ' + result + '</p>')
+        
+        context = {
+            'code': self.request.GET['code'],
+            'access_code': result,
+            'url': url
+        }
+        self.render_response('foursquare.jade', **context)
 
 deployedConfigFile = SafeConfigParser()
 deployedConfigFile.read('config.ini')
