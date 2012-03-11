@@ -1,11 +1,31 @@
-import os, string, logging
+import os, string, logging, traceback
 from ConfigParser import SafeConfigParser
 import webapp2
 from webapp2_extras import jinja2
 
 from FoursquareConfig import FoursquareConfigHandler
 
-class JadeHandler(webapp2.RequestHandler):
+class BaseHandler(webapp2.RequestHandler):
+    def handle_exception(self, exception, debug):
+        # Todo: not certain this does more harm than good
+        logging.exception(exception)
+
+        context = {'exception': exception, 
+                   'traceback':traceback.format_exc(),
+                   'debug': debug}
+
+        # If the exception is a HTTPException, use its error code.
+        # Otherwise use a generic 500 error code.
+        http_status = 500
+        if isinstance(exception, webapp2.HTTPException):
+            http_status = exception.code
+        
+        self.response.set_status(http_status)
+        context['http_status'] = http_status
+        
+        self.render_response('error.jade', **context)
+
+class JadeHandler(BaseHandler):
     # Per http://stackoverflow.com/a/7081653/87990
     @staticmethod
     def jade_factory(app):
@@ -22,22 +42,6 @@ class JadeHandler(webapp2.RequestHandler):
         rv = self.jinja2.render_template(_template, **context)
         self.response.write(rv)
         
-    def handle_exception(self, exception, debug):
-        # Log the error.
-        logging.exception(exception)
-
-        context = {'exception': exception}
-
-        # If the exception is a HTTPException, use its error code.
-        # Otherwise use a generic 500 error code.
-        http_status = 500
-        if isinstance(exception, webapp2.HTTPException):
-            http_status = exception.code
-        
-        self.response.set_status(http_status)
-        context['http_status'] = http_status
-        
-        self.render_response('error.jade', **context)
 
 class HomePage(JadeHandler, FoursquareConfigHandler):
     def get(self):
@@ -83,4 +87,4 @@ app = webapp2.WSGIApplication(routes=[
          ('/foursquare-callback', FourSquareCallback)
         ], 
         config={'deployedConfigFile': deployedConfigFile},
-        debug=True)
+        debug=deployedConfigFile.getboolean('general', 'debug'))

@@ -8,4 +8,8 @@ html(lang="en")
   body
     h1 Whoah dude
     
-    p {{http_status}} error: {{exception}}
+    p Error: {{exception}}
+    
+    if debug:
+      #traceback
+        pre {{traceback}}
