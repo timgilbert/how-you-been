@@ -1,10 +1,12 @@
-whence
-------
+How You Been?
+-------------
 
-This is a simple GAE application written in python.  The aim is to make a 
-sort of last.fm / foursquare mashup.  I hope to use [Google's webapp2][webapp2] 
-along with [pyjade][pyjade] through [jinja2][jinja2], since I've come to 
-enjoy writing jade.
+This is a simple [Gogle App Eengine][gae] application written in python.  The aim 
+is to make foursquare / last.fm mashup which looks at your foursquare history and 
+then generates a playlist of songs related to the places you've been recently.  
+
+It's using [Google's webapp2][webapp2] along with [pyjade][pyjade] through 
+[jinja2][jinja2], since I've come to enjoy writing jade.
 
 Installing
 ----------
@@ -15,10 +17,13 @@ its root directory and run:
 
     virtualenv -p /usr/local/bin/python --no-site-packages --distribute .
     pip install pyjade
-    ln -s lib/python2.7/site-packages/pyjade src/
+    cd src
+    ln -s ../lib/python2.7/site-packages/pyjade .
+    dev_appserver.py .
     
 
-[webapp2]: http://webapp-improved.appspot.com/index.html
-[jinja2]: http://webapp-improved.appspot.com/api/webapp2_extras/jinja2.html
-[pyjade]: https://github.com/syrusakbary/pyjade
-[answer]: http://stackoverflow.com/a/4863970/87990
+[gae]:      http://code.google.com/appengine
+[webapp2]:  http://webapp-improved.appspot.com/index.html
+[jinja2]:   http://webapp-improved.appspot.com/api/webapp2_extras/jinja2.html
+[pyjade]:   https://github.com/syrusakbary/pyjade
+[answer]:   http://stackoverflow.com/a/4863970/87990
