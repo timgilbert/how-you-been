@@ -5,18 +5,19 @@ html(lang="en")
     script(type="text/javascript" src="static/how-you-been.js")
     link(rel="stylesheet" type="text/css" href="static/style.css")
     title How You Been? Playlist
-    script(type="text/javascript")
-      $(function() {
-        // The server will pass this data into our template.
-        $('button#go').data({ 'oauth' : getURLParameter('oauth') });
+    //
+      script(type="text/javascript")
+        $(function() {
+          // The server will pass this data into our template.
+          $('button#go').data({ 'oauth' : getURLParameter('oauth') });
         
-        $('button#go').click(function(event) {
-          console.debug('oauth:' + $(this).data('oauth'));
-          $('#playlist').empty();
-          // Grab the JSON data
-          $.getJSON('/inspiration.json', {'oauth': $(this).data('oauth')}, parseInspiration);
+          $('button#go').click(function(event) {
+            console.debug('oauth:' + $(this).data('oauth'));
+            $('#playlist').empty();
+            // Grab the JSON data
+            $.getJSON('/inspiration.json', {'oauth': $(this).data('oauth')}, parseInspiration);
+          });
         });
-      });
   
   body
     h1 Playlist

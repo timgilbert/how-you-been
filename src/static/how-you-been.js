@@ -4,6 +4,20 @@
  * Routines for generating playlist data and whatnot
  */
 
+/*
+ * Startup script - this sets up actions that will be run as soon as the page is loaded.
+ */
+$(function() {
+  $('button#go').click(function(event) {
+    var oauth = getURLParameter('oauth');
+    console.debug('oauth:' + oauth);
+    $('#playlist').empty();
+    // Grab the JSON data
+    $.getJSON('/inspiration.json', {'oauth': oauth}, parseInspiration);
+  });
+});
+
+
 /**
  * Given one of the inspiration objects returned from /inspiration.json,
  * pick a random field.
