@@ -1,12 +1,15 @@
 How You Been?
 -------------
 
-This is a simple [Gogle App Eengine][gae] application written in python.  The aim 
+This is a simple [Google App Engine][gae] application written in python.  The aim 
 is to make foursquare / last.fm mashup which looks at your foursquare history and 
 then generates a playlist of songs related to the places you've been recently.  
 
 It's using [Google's webapp2][webapp2] along with [pyjade][pyjade] through 
 [jinja2][jinja2], since I've come to enjoy writing jade.
+
+A working installation of this application should eventually be up and running at 
+[http://how-you-been.appspot.com/][appspot].
 
 Installing
 ----------
@@ -27,3 +30,4 @@ its root directory and run:
 [jinja2]:   http://webapp-improved.appspot.com/api/webapp2_extras/jinja2.html
 [pyjade]:   https://github.com/syrusakbary/pyjade
 [answer]:   http://stackoverflow.com/a/4863970/87990
+[appspot]:  http://how-you-been.appspot.com/
