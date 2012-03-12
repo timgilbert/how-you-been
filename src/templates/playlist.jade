@@ -25,10 +25,16 @@ html(lang="en")
     
     #playlist
     
+    // teesting
     #templates.hidden
-      #entry
-        p Entry!
-          span#item item
+      
+      // Basic template for a single track listing
+      #track.track
+        span.inspiration item
+        button.search Find song
+      
+      #song
+        p song!
     
     if debug:
       #debug

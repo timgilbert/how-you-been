@@ -53,12 +53,30 @@ function getURLParameter(name) {
     );
 }
 
+/** First pass at searching: synchronous */
+
+
+/**
+ * Clone a single copy of the track div, attach data to it, and return it
+ */
+function createTrack(data, index) {
+  var entry$ = $('#templates #track').clone();
+  entry$.data({'inspiration': data, 'index': index});
+
+  var inspiration = pickInspiration(data);
+  $('.inspiration', entry$).text(inspiration);
+
+  //console.log(index + ": " + inspiration)
+  return entry$;
+}
+
+/**
+ * After a successful Ajax call, go through the resulting list and populate 
+ * the initial playlist.
+ */
 function parseInspiration(inspirationList) {
   for (var i = 0; i < inspirationList.length; i++) {
     var data = inspirationList[i]; 
-    var entry$ = $('#templates #entry').clone();
-    entry$.data({'inspiration': data});
-    $('#item', entry$).text(pickInspiration(data));
-    $('#playlist').append(entry$);
+    $('#playlist').append(createTrack(inspirationList[i], i));
   }
 }

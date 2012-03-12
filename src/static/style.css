@@ -5,3 +5,8 @@ body {
 h1 { color: red; }
 
 .hidden { display: none; }
+
+div#playlist .track {
+  border: 1px dotted #444;
+  margin: 10px;
+}
