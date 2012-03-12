@@ -6,8 +6,37 @@ html(lang="en")
     title How You Been?
   
   body
-    h1 Jade
-    form(method="post", action="/foursquare-redirect")
-      p= Please
-        input#login(type="submit" value="Log in")
+    h1 How You Been?
+
+    p.explanation
+      | How You Been looks at your last several checkins on 
+      a(href="http://foursquare.com/") foursquare
+      | and tries to fish some meaningful keywords out of them.
+      | It then searches 
+      a(href="http://www.last.fm/") last.fm 
+      | for those keywords, and builds a playlist for you based on 
+      | the places you've been over the past little while.  If you 
+      | provide your last.fm username, the list can be tweaked in order 
+      | to present you with artists you are more likely to enjoy.
+      | Otherwise, you're at the mercy of <code>Math.random()</code>.
+      
         
+    form(method="post", action="/foursquare-redirect")
+      #loginform
+        p To get started, please authenticate to foursquare.
+          input#login(type="submit" value="Log in")
+    
+    #about
+      h2 About How You Been
+      p.explanation
+        | This little app was built using 
+        | <a href="http://python.org/">Python</a>,
+        | <a href="http://code.google.com/appengine/">Google App Engine</a>,
+        | <a href="http://webapp-improved.appspot.com/">Google's webapp2</a>,
+        | <a href="http://jquery.com/">jQuery</a>,
+        | and <a href="https://github.com/SyrusAkbary/pyjade/">pyjade</a>.
+        | It's open-sourced under the MIT License, except for my API keys, 
+        | and you can find the latest version of the source on 
+        | <a href="https://github.com/timgilbert/how-you-been/">github</a>.
+      p.explanation
+        | It was written by <a href="http://timgilbert.wordpress.com/">Tim Gilbert</a>.
