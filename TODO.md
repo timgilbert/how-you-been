@@ -1,6 +1,10 @@
 TODO
 ----
 
+I may need to develop some sort of weighted-probability thing for javascript, since
+I have several cases where I need to choose between several alternatives, I want to 
+prefer some outcomes, and the complete set of possible outcomes is not know beforehand.
+
 Checkins for events should have those event names get high priority.
 
 Ex:
