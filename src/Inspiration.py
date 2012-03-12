@@ -1,9 +1,13 @@
-# Routines to grab random bits of checkin data in order to form a playlist
+# Routines to grab some bits of data from the chec data.  The front end will randomly 
 
 from string import Template
 from webapp2_extras import json
 
 class Inspiration:
+    """This class picks a bunch of data out of the retrieved checkin data with 
+    an eye to coming up with possible search terms to use to build a playlist from."""
+    
+    # This is kind of clunky
     def __init__(self, checkin):
         venue = checkin['venue']
         d = {}
@@ -32,10 +36,36 @@ class Inspiration:
     
     def _cleanupAddress(self, address):
         """Given a street address, clean it up to make it more suitable for a song title"""
-        return address
+        clean = []
+        
+        # This is sort of a desultory effort but I'm not convinced 
+        # that these cleanups will actually result in cleaner searches
+        for word in address.split(None):
+            lower = word.lower()
+            
+            # Some things we just nuke
+            if lower == 'at': continue
+            elif lower == 'btw': continue
+            elif lower == 'btwn': continue
+            elif word.isdigit(): continue
+            
+            # Or we make substitiutions
+            elif lower == 'st' or lower == 'st.':
+                word = 'Street'
+            elif lower == 'ave' or lower == 'ave.':
+                word = 'Avenue'
+            elif lower == 'pl' or lower == 'pl.':
+                word = 'Place'
+            elif lower == 'n': word = 'North'
+            elif lower == 'e': word = 'East'
+            elif lower == 's': word = 'South'
+            elif lower == 'w': word = 'West'
+            
+            clean.append(word)
+        return ' '.join(clean) 
 
     def to_dict(self): 
-        return dict([(key, self._dict[key]) for key in self._dict.keys()])
+        return self._dict
     
     def __repr__(self):
         #return json.encode(self._dict, ensure_ascii=False))

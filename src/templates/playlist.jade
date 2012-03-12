@@ -2,16 +2,38 @@
 html(lang="en")
   head
     script(type="text/javascript" src="static/jquery-1.7.1.js")
+    script(type="text/javascript" src="static/how-you-been.js")
     link(rel="stylesheet" type="text/css" href="static/style.css")
     title How You Been? Playlist
+    script(type="text/javascript")
+      $(function() {
+        // The server will pass this data into our template.
+        $('button#go').data({ 'oauth' : getURLParameter('oauth') });
+        
+        $('button#go').click(function(event) {
+          console.debug('oauth:' + $(this).data('oauth'));
+          $('#playlist').empty();
+          // Grab the JSON data
+          $.getJSON('/inspiration.json', {'oauth': $(this).data('oauth')}, parseInspiration);
+        });
+      });
   
   body
     h1 Playlist
-
+    
+    button#go Generate!
+    
+    #playlist
+    
+    #templates.hidden
+      #entry
+        p Entry!
+          span#item item
+    
     if debug:
       #debug
         h2 Inspiration
         pre {{inspiration}}
         h2 Raw Checkin Data ({{encoding}})
         pre {{pretty}}
-      
+  
