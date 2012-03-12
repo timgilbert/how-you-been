@@ -15,16 +15,22 @@ html(lang="en")
       | It then searches 
       a(href="http://www.last.fm/") last.fm 
       | for those keywords, and builds a playlist for you based on 
-      | the places you've been over the past little while.  If you 
-      | provide your last.fm username, the list can be tweaked in order 
-      | to present you with artists you are more likely to enjoy.
-      | Otherwise, you're at the mercy of <code>Math.random()</code>.
+      | the places you've been over the past little while.  
+      
+    p.explanation
+      | You will also need to sign into last.fm in order to save a playlist 
+      | which you can then stream.  In addition, being signed in lets How You Been 
+      | tweak your playlist in order to favor artists you are more likely to enjoy.
+      | You can still use the app without a last.fm account, but you'll need to 
+      | find a way to stream the music on your own, and you're at the mercy of 
+      | <code>Math.random()</code> for the songs you get.
+      
       
         
-    form(method="post", action="/foursquare-redirect")
-      #loginform
-        p To get started, please authenticate to foursquare.
-          input#login(type="submit" value="Log in")
+    #loginform: form(method="post", action="/foursquare-redirect")
+      h2 Let's do it
+      p To get started, please authenticate to foursquare.
+        input#login(type="submit" value="Log in")
     
     #about
       h2 About How You Been
@@ -39,4 +45,6 @@ html(lang="en")
         | and you can find the latest version of the source on 
         | <a href="https://github.com/timgilbert/how-you-been/">github</a>.
       p.explanation
-        | It was written by <a href="http://timgilbert.wordpress.com/">Tim Gilbert</a>.
+        | How You Been was written by <a href="http://timgilbert.wordpress.com/">Tim Gilbert</a>.
+        | It is called &ldquo;How You Been&rdquo; because &ldquo;foursquast.fm&rdquo; was taken.
+        | It does not store any data about you, because frankly your taste in music is terrible.
