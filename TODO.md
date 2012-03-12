@@ -1,6 +1,11 @@
 TODO
 ----
 
+In general, the server should perform last.fm and foursquare authentication and 
+then pass those values to the front-end.  The front-end should store them in a 
+session cookie.  User-facing URLs should display conditionally based on the existence 
+of these cookies (I'm assuming no CDN caching for now).
+
 I may need to develop some sort of weighted-probability thing for javascript, since
 I have several cases where I need to choose between several alternatives, I want to 
 prefer some outcomes, and the complete set of possible outcomes is not know beforehand.
