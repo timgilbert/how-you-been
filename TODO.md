@@ -10,6 +10,9 @@ I may need to develop some sort of weighted-probability thing for javascript, si
 I have several cases where I need to choose between several alternatives, I want to 
 prefer some outcomes, and the complete set of possible outcomes is not know beforehand.
 
+The user should be able to select a particular week from a calendar picker and use 
+that as the week range to get data from.
+
 Checkins for events should have those event names get high priority.
 
 Ex:
