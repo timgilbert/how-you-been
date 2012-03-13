@@ -20,8 +20,10 @@ its root directory and run:
 
     virtualenv -p /usr/local/bin/python --no-site-packages --distribute .
     pip install pyjade
+    pip install lxml
     cd src
     ln -s ../lib/python2.7/site-packages/pyjade .
+    ln -s ../lib/python2.7/site-packages/lxml .
     dev_appserver.py .
     
 
