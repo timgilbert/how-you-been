@@ -25,7 +25,6 @@ its root directory and run:
     ln -s ../lib/python2.7/site-packages/pyjade .
     ln -s ../lib/python2.7/site-packages/lxml .
     dev_appserver.py .
-    
 
 [gae]:      http://code.google.com/appengine
 [webapp2]:  http://webapp-improved.appspot.com/index.html

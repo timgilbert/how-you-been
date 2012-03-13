@@ -1,15 +1,13 @@
-!!! 5
-html(lang="en")
-  head
-    script(type="text/javascript" src="static/jquery-1.7.1.js")
-    link(rel="stylesheet" type="text/css" href="static/style.css")
-    title Oops, an error occurred
+extends "layout.jade"
+
+block head
+  title Oops, an error occurred
   
-  body
-    h1 Whoah dude
+block content
+  h1 Whoah dude
     
-    p Error: {{exception}}
+  p Error: {{exception}}
     
-    if debug:
-      #traceback
-        pre {{traceback}}
+block debug
+  #traceback
+    pre {{traceback}}
