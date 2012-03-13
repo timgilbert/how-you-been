@@ -1,0 +1,24 @@
+!!! 5
+html(lang="en")
+  head
+    script(type="text/javascript" src="static/jquery-1.7.1.js")
+    script(type="text/javascript" src="static/jquery.cookie.js")
+    script(type="text/javascript" src="static/how-you-been.js")
+    link(rel="stylesheet" type="text/css" href="static/style.css")
+    block head
+    title How You Been?
+    script(type="text/javascript")
+      $(function() { initHomePage(); });
+  
+  body
+  
+    #content
+      block content
+    
+    #footer
+      block footer
+    
+    if debug:
+      #debug
+        block debug
+    
