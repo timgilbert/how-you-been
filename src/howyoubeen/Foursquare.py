@@ -17,6 +17,9 @@ class FoursquareMixin(Handlers.WebAuth, Config.ConfigAware):
     # Default setting for config lookups
     DEFAULT_SETTING_GROUP = 'foursquare'
     
+    # Name of the session cookie we store data in
+    COOKIE_NAME = 'foursquare.oauth'
+    
     def getAuthRedirectUrl(self):
         """Construct the URL we'll initially use to send users off to foursquare for OAuth"""
         url = ('https://foursquare.com/oauth2/authenticate' +

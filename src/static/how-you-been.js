@@ -18,11 +18,14 @@ function initPlaylistPage() {
 
 function initHomePage() {
   if ($.cookie('foursquare.oauth')) {
-    console.debug('Yikes');
     $('#foursquareLogin').hide();
     $('#foursquareLoggedInMessage').show();
   }
-  console.log('hp')
+  if ($.cookie('lastfm.sessionKey')) {
+    console.debug('Yikes');
+    $('#lastfmLogin').hide();
+    $('#lastfmLoggedInMessage').show();
+  }
 }
 
 function generatePlaylist() {

@@ -20,7 +20,14 @@ class HomePage(JadeHandler):
 
 class PlaylistHandler(JadeHandler, FoursquareMixin):
     def get(self):
-        oauth = self.request.GET['oauth']
+        
+        if FoursquareMixin.COOKIE_NAME not in self.request.cookies:
+            logging.info('No cookie found at playlist, redirecting to homepage')
+            self.response.status = 302
+            self.response.location = '/'
+            return
+        
+        oauth = self.request.cookies[FoursquareMixin.COOKIE_NAME]
         checkins = self.getFoursquareCheckins(oauth)
         
         # This feels brittle
@@ -77,15 +84,15 @@ class LastFmRedirector(RedirectHandler, LastFmMixin):
 class LastFmCallback(JadeHandler, LastFmMixin):
     """last.fm returns the user here after a successful auth"""
     def get(self):
-        # XXX handle an error here - foursquare will redir to callback?error=foo
+        # XXX hnadle errors, and maybe generalize
         token = self.request.GET['token']
         sessionKey = self.getLastFmSessionKey(token)
         
-        self.response.set_cookie('lastfm.sessionkey', sessionKey,
+        self.response.set_cookie(LastFmMixin.COOKIE_NAME, sessionKey,
                 comment='last.fm web service session key')
         
         self.response.location = '/'
-        #self.response.status = 302
+        self.response.status = 302
 
 class FoursquareCallback(JadeHandler, FoursquareMixin):
     """Once a user accepts authentication on foursquare, they're sent back here with a 
@@ -101,7 +108,7 @@ class FoursquareCallback(JadeHandler, FoursquareMixin):
         url = self.foursquareAccessTokenUrl(code)
         accessCode = self.getFoursquareAccessToken(code)
         
-        self.response.set_cookie('foursquare.oauth', accessCode,
+        self.response.set_cookie(FoursquareMixin.COOKIE_NAME, accessCode,
                 comment='Foursquare session authentication token')
         #self.response.location = '/playlist?oauth=' + urllib.quote(accessCode)
         self.response.location = '/'

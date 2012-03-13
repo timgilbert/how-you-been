@@ -1,4 +1,4 @@
-import logging, pprint, hashlib, urllib
+import logging, pprint, hashlib, urllib, urllib2
 from webapp2_extras import json
 from lxml import etree
 #import pylast
@@ -22,6 +22,9 @@ class LastFmMixin(Handlers.WebAuth, Config.ConfigAware):
     
     # Default setting for config lookups
     DEFAULT_SETTING_GROUP = 'last.fm'
+    
+    # Name of the session cookie we store data in
+    COOKIE_NAME = 'lastfm.sessionKey'
     
     def network(self):
         """Lazily initialize a pyLast network instance"""
@@ -48,11 +51,13 @@ class LastFmMixin(Handlers.WebAuth, Config.ConfigAware):
         logging.info(request)
         logging.info(request.url())
         
-        sessionKey = 'nothing'
-        #sg = pylast.SessionKeyGenerator(self.network())
-        #sessionKey = sg.get_web_auth_session_key_by_token(token)
+        response = request.execute()
+        root = response.getroot()
         
-        logging.info(sessionKey)
+        sessionKey = root.xpath('//key/text()')[0]
+        username = root.xpath('//name/text()')[0]
+        
+        logging.info('user:' + username + ' session:' + sessionKey)
         
         return sessionKey
 
