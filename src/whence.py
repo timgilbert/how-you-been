@@ -2,7 +2,13 @@
 
 """Main application file.  This contains the route definitions and whatnot."""
 
-# TODO: I'd like to move most of the 
+# TODO: 
+# The thinner this file is, the happier I'll feel.  Ideally it should just be routing
+#   and app setup.
+# The last.fm session key is forever, we should probably give it a year or so timeout
+#   http://www.last.fm/group/Last.fm+Web+Services/forum/21604/_/2031013
+# Same with foursquare's oauth token (for now)
+#   https://developer.foursquare.com/overview/auth
 
 import pprint
 from ConfigParser import SafeConfigParser
@@ -21,13 +27,13 @@ class HomePage(JadeHandler):
 class PlaylistHandler(JadeHandler, FoursquareMixin):
     def get(self):
         
-        if FoursquareMixin.COOKIE_NAME not in self.request.cookies:
+        if FoursquareMixin.OAUTH_COOKIE not in self.request.cookies:
             logging.info('No cookie found at playlist, redirecting to homepage')
             self.response.status = 302
             self.response.location = '/'
             return
         
-        oauth = self.request.cookies[FoursquareMixin.COOKIE_NAME]
+        oauth = self.request.cookies[FoursquareMixin.OAUTH_COOKIE]
         checkins = self.getFoursquareCheckins(oauth)
         
         # This feels brittle
@@ -57,42 +63,11 @@ class InspirationHandler(JsonHandler, FoursquareMixin):
         
         self.render_response([i.to_dict() for i in inspiration])
 
-class OldFoursquareRedirector(JadeHandler, FoursquareMixin):
-    # Per https://developer.foursquare.com/overview/auth.html
-    def post(self):
-        url = self.foursquareRedirectUrl()
-        self.response.location = url
-        
-        if self.app.debug:
-            self.response.write('Redirect: <a href="' + url + '">' + url + '</a>')
-        else:
-            self.response.status = 302
-    
-    # Purely for debugging
-    def get(self): 
-        if self.app.debug: 
-            return self.post()
-        else:
-            self.response.status = 404
-
 class FoursquareRedirector(RedirectHandler, FoursquareMixin):
     pass
 
 class LastFmRedirector(RedirectHandler, LastFmMixin):
     pass
-
-class LastFmCallback(JadeHandler, LastFmMixin):
-    """last.fm returns the user here after a successful auth"""
-    def get(self):
-        # XXX hnadle errors, and maybe generalize
-        token = self.request.GET['token']
-        sessionKey = self.getLastFmSessionKey(token)
-        
-        self.response.set_cookie(LastFmMixin.COOKIE_NAME, sessionKey,
-                comment='last.fm web service session key')
-        
-        self.response.location = '/'
-        self.response.status = 302
 
 class FoursquareCallback(JadeHandler, FoursquareMixin):
     """Once a user accepts authentication on foursquare, they're sent back here with a 
@@ -108,9 +83,18 @@ class FoursquareCallback(JadeHandler, FoursquareMixin):
         url = self.foursquareAccessTokenUrl(code)
         accessCode = self.getFoursquareAccessToken(code)
         
-        self.response.set_cookie(FoursquareMixin.COOKIE_NAME, accessCode,
-                comment='Foursquare session authentication token')
-        #self.response.location = '/playlist?oauth=' + urllib.quote(accessCode)
+        self.response.location = '/'
+        self.response.status = 302
+
+class LastFmCallback(JadeHandler, LastFmMixin):
+    """last.fm returns the user here after a successful auth.  We contact them to get a
+    session key and a username, and then redirect.
+    """
+    def get(self):
+        # XXX handle errors, and maybe generalize
+        token = self.request.GET['token']
+        sessionKey = self.getLastFmSessionKey(token)
+
         self.response.location = '/'
         self.response.status = 302
 

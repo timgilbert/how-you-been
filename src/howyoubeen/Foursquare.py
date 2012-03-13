@@ -18,7 +18,7 @@ class FoursquareMixin(Handlers.WebAuth, Config.ConfigAware):
     DEFAULT_SETTING_GROUP = 'foursquare'
     
     # Name of the session cookie we store data in
-    COOKIE_NAME = 'foursquare.oauth'
+    OAUTH_COOKIE = 'foursquare.oauth'
     
     def getAuthRedirectUrl(self):
         """Construct the URL we'll initially use to send users off to foursquare for OAuth"""
@@ -39,8 +39,8 @@ class FoursquareMixin(Handlers.WebAuth, Config.ConfigAware):
         return url
     
     def getFoursquareAccessToken(self, code):
-        """Given an access code, make an OAuth call to foursquare and return 
-        the access token they give us.  Raise an error if they return one."""
+        """Given an access code, make an OAuth call to foursquare and save the
+        access token they give us in a cookie. Raise an error if they return one."""
         url = self.foursquareAccessTokenUrl(code)
         httpResponse = urllib2.urlopen(url)
         result = json.decode(httpResponse.read())
@@ -49,8 +49,8 @@ class FoursquareMixin(Handlers.WebAuth, Config.ConfigAware):
             access_token = str(result['access_token'])
         else:
             raise FoursquareException(result)
-            
-        return access_token
+        
+        self.setCookie(self.OAUTH_COOKIE, access_token)
     
     def getFoursquareCheckins(self, accessToken):
         """Get the list of the signed-in user's checkins, per 

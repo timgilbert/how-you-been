@@ -57,6 +57,10 @@ class WebAuth:
     """Abstract base class which is used by web auth routines"""
     def getAuthRedirectUrl(self):
         raise NotImplementedError('Subclasses must override this abstract method')
+    
+    def setCookie(self, name, value):
+        """Set an authorization-related cookie in the response."""
+        self.response.set_cookie(name, value)
 
 class RedirectHandler(JadeHandler):
     """Handler which gets a redirection URL from a mixin and then redrects to it."""

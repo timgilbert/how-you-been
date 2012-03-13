@@ -24,15 +24,8 @@ class LastFmMixin(Handlers.WebAuth, Config.ConfigAware):
     DEFAULT_SETTING_GROUP = 'last.fm'
     
     # Name of the session cookie we store data in
-    COOKIE_NAME = 'lastfm.sessionKey'
-    
-    def network(self):
-        """Lazily initialize a pyLast network instance"""
-        if not hasattr(self, '_network'):
-            self._network = pylast.LastFMNetwork(
-                    api_key=self.cfg('api_key'), 
-                    api_secret=self.cfg('secret'))
-        return self._network
+    SESSIONKEY_COOKIE = 'lastfm.sessionKey'
+    USERNAME_COOKIE = 'lastfm.username'
     
     def getAuthRedirectUrl(self):
         host = self.request.environ['HTTP_HOST']
@@ -44,24 +37,26 @@ class LastFmMixin(Handlers.WebAuth, Config.ConfigAware):
     def _lastFmApiUrl(self, url): pass
     
     def getLastFmSessionKey(self, token):
-        """Given an access code, make a call to last.fm and save the session key they give us."""
+        """Given an access code, make a call to last.fm. Find the user's name and a session key,
+        and save both values into cookies."""
         
-        request = Request('auth.getSession', {'token': unicode(token).encode('utf-8')})
+        apiRequest = LastFmApiRequest('auth.getSession', {'token': unicode(token).encode('utf-8')})
         
-        logging.info(request)
-        logging.info(request.url())
+        logging.debug('sessionKey URL: ' + apiRequest.url())
         
-        response = request.execute()
+        response = apiRequest.execute()
         root = response.getroot()
         
         sessionKey = root.xpath('//key/text()')[0]
         username = root.xpath('//name/text()')[0]
         
-        logging.info('user:' + username + ' session:' + sessionKey)
+        logging.debug('user:' + username + ' session:' + sessionKey)
         
-        return sessionKey
+        # I'm not crazy about the way this couples the mixin and webapp2.RequestHandler
+        self.setCookie(self.SESSIONKEY_COOKIE, sessionKey)
+        self.setCookie(self.USERNAME_COOKIE, username)
 
-class Request(Config.ConfigAware):
+class LastFmApiRequest(Config.ConfigAware):
     """Stripped-down pylast._Request class usable for authentication"""
     DEFAULT_SETTING_GROUP = 'last.fm'
     def __init__(self, method, params={}):
