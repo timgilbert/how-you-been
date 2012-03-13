@@ -7,7 +7,8 @@ class Inspiration:
     """This class picks a bunch of data out of the retrieved checkin data with 
     an eye to coming up with possible search terms to use to build a playlist from."""
     
-    # This is kind of clunky
+    # This is kind of clunky, but keeping the dict seperate makes the 
+    # JSON serialization trivial
     def __init__(self, checkin):
         venue = checkin['venue']
         d = {}

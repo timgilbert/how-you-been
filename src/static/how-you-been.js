@@ -6,18 +6,39 @@
 
 /*
  * Startup script - this sets up actions that will be run as soon as the page is loaded.
+ * NB: this script will be run for every page that loads this file.
  */
 $(function() {
-  $('button#go').click(function(event) {
-    var oauth = getURLParameter('oauth');
-    console.debug('oauth:' + oauth);
-    $('#playlist').empty();
-    // Grab the JSON data
-    $.getJSON('/inspiration.json', {'oauth': oauth}, parseInspiration);
-  });
+  // Event setup
 });
 
+function initPlaylistPage() {
+  generatePlaylist();
+}
 
+function initHomePage() {
+  if ($.cookie('foursquare.oauth')) {
+    console.debug('Yikes');
+    $('#foursquareLogin').hide();
+    $('#foursquareLoggedInMessage').show();
+  }
+  console.log('hp')
+}
+
+function generatePlaylist() {
+  var oauth = $.cookie('foursquare.oauth');
+
+  if (oauth == null) {
+    // If there's no cokie, redirect to home page
+    window.location = '/';
+  }
+
+  $.getJSON(
+      '/inspiration.json', 
+      {'oauth': oauth}, 
+      parseInspiration
+  );
+}
 /**
  * Given one of the inspiration objects returned from /inspiration.json,
  * pick a random field.

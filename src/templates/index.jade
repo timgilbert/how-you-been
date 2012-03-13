@@ -2,8 +2,12 @@
 html(lang="en")
   head
     script(type="text/javascript" src="static/jquery-1.7.1.js")
+    script(type="text/javascript" src="static/jquery.cookie.js")
+    script(type="text/javascript" src="static/how-you-been.js")
     link(rel="stylesheet" type="text/css" href="static/style.css")
     title How You Been?
+    script(type="text/javascript")
+      $(function() { initHomePage(); });
   
   body
     h1 How You Been?
@@ -11,27 +15,42 @@ html(lang="en")
     p.explanation
       | How You Been looks at your last several checkins on 
       a(href="http://foursquare.com/") foursquare
-      | and tries to fish some meaningful keywords out of them.
-      | It then searches 
+      | and tries to fish some meaningful search terms out of them.
+      | These might include, for example, the name of the place you checked 
+      | in to, the name of street it's on, the day of the week, 
+      | etc.  It then searches 
       a(href="http://www.last.fm/") last.fm 
-      | for those keywords, and builds a playlist for you based on 
-      | the places you've been over the past little while.  
+      | for a song related to those keywords, and builds a playlist for you 
+      | based on the places you've been over the past little while.  
       
     p.explanation
-      | You will also need to sign into last.fm in order to save a playlist 
-      | which you can then stream.  In addition, being signed in lets How You Been 
+      | You will need to sign into last.fm in order to stream a playlist.  
+      | In addition, being signed in lets How You Been 
       | tweak your playlist in order to favor artists you are more likely to enjoy.
       | You can still use the app without a last.fm account, but you'll need to 
       | find a way to stream the music on your own, and you're at the mercy of 
       | <code>Math.random()</code> for the songs you get.
-      
-      
-        
-    #loginform: form(method="post", action="/foursquare-redirect")
-      h2 Let's do it
-      p To get started, please authenticate to foursquare.
-        input#login(type="submit" value="Log in")
     
+    // Obviously marketing is not my forte
+    #foursquareLogin: form(method="post", action="/foursquare-redirect")
+      h2 Here I am on foursquare, behold me!
+      p Ok already, log in to foursquare.
+        input#foursquarelogin(type="submit" value="Log in")
+    
+    #foursquareLoggedInMessage.hidden
+      p Great, you're logged in to foursquare.
+    
+    #lastfmLogin: form(method="post", action="/lastfm-redirect")
+      h2 Yo check me out on last.fm, my style is impeccable!
+      p To get started, please authenticate to foursquare.
+        input#lastfmlogin(type="submit" value="Log in")
+      
+    #lastfmLoggedInMessage.hidden
+      p Great, you're logged in to last.fm too.
+      p What are you doing here?  Go make a 
+        a(href="/playlist") playlist
+
+
     #about
       h2 About How You Been
       p.explanation
@@ -46,5 +65,5 @@ html(lang="en")
         | <a href="https://github.com/timgilbert/how-you-been/">github</a>.
       p.explanation
         | How You Been was written by <a href="http://timgilbert.wordpress.com/">Tim Gilbert</a>.
-        | It is called &ldquo;How You Been&rdquo; because &ldquo;foursquast.fm&rdquo; was taken.
+        | It is called &ldquo;How You Been&rdquo; because &ldquo;foursqu<i>a</i>st.fm&rdquo; was taken.
         | It does not store any data about you, because frankly your taste in music is terrible.

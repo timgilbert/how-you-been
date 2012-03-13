@@ -111,15 +111,21 @@ class FoursquareRedirector(JadeHandler, FoursquareConfigHandler):
 class FoursquareCallback(JadeHandler, FoursquareConfigHandler):
     """Once a user accepts authentication on foursquare, they're sent back here with a 
     code parameter on the query string.  We then need to request an access token from 
-    foursquare, which will be returned to us in a JSON response body.  Once we get the 
-    token, we'll redirect the user to another page with the token in the URL."""
+    foursquare, which will be returned to us in a JSON response body.  
+    
+    Once we get the token, we save it as a session cookie and then redirect the user
+    to the home page (hoping the classic cookie/redirect issues don't come into play 
+    here)."""
     def get(self):
         # XXX handle an error here - foursquare will redir to callback?error=foo
         code = self.request.GET['code']
         url = self.foursquareAccessTokenUrl(code)
         accessCode = self.getFoursquareAccessToken(code)
         
-        self.response.location = '/playlist?oauth=' + urllib.quote(accessCode)
+        self.response.set_cookie('foursquare.oauth', accessCode,
+                comment='Foursquare session authentication token')
+        #self.response.location = '/playlist?oauth=' + urllib.quote(accessCode)
+        self.response.location = '/'
         self.response.status = 302
 
 deployedConfigFile = SafeConfigParser()
