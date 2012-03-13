@@ -1,5 +1,6 @@
 import string, urllib, urllib2, logging
 from webapp2_extras import json
+import Handlers, Config
 
 class FoursquareException(Exception):
     def __init__(self, message, value): 
@@ -8,35 +9,15 @@ class FoursquareException(Exception):
 
 class FoursquareApiException(FoursquareException): pass
 
-class FoursquareConfigHandler:
+class FoursquareMixin(Handlers.WebAuth, Config.ConfigAware):
     """This is a mixin class which has several convenience methods for 
     constructing foursquare-related URL, based on the assumption that 
     a configParser instance is in the app configuration."""
-
-    # This memoization stuff is almost certainly more elaborate than it's worth.
-    # I haven't even thought it out from a class / instance perspective.
-    # Plus it could be abstracted.  But for now I'm leaving it in.
-    def _poke(self, name, value):
-        if not hasattr(self, '_memo_dict'): 
-            self._memo_dict = {}
-        self._memo_dict[name] = value
-        return value
     
-    def _peek(self, name):
-        if not hasattr(self, '_memo_dict'):  return None
-        return self._memo_dict.get(name)
+    # Default setting for config lookups
+    DEFAULT_SETTING_GROUP = 'foursquare'
     
-    def cfg(self, settingName):
-        """Return a safely-encoded setting from the foursquare section of the config"""
-        if self._peek(settingName) is not None: return self._peek(settingName)
-        rawSetting = self.app.config.get('deployedConfigFile')
-        
-        #print rawSetting.get('foursquare', settingName)
-        
-        safeSetting = urllib.quote(rawSetting.get('foursquare', settingName))
-        return self._poke(settingName, safeSetting)
-    
-    def foursquareRedirectUrl(self):
+    def getAuthRedirectUrl(self):
         """Construct the URL we'll initially use to send users off to foursquare for OAuth"""
         url = ('https://foursquare.com/oauth2/authenticate' +
                '?client_id=' + self.cfg('client_id') +
