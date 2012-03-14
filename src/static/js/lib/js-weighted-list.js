@@ -1,7 +1,11 @@
 /**
- * The purpose of this file is to develop a weighted probability list.
- * Every element of the list has an associated weight; if x has weight 
- * 1 and y has weight 2, y is twice as likely as x to be selected at random. 
+ * js-weighted-list.js
+ * 
+ * version 0.1
+ * 
+ * This file is licensed under the MIT License, please see MIT-LICENSE.txt for details.
+ * 
+ * https://github.com/timgilbert/js-weighted-list is its home.
  */
 function WeightedList(initial) { 
   this.weights = {};

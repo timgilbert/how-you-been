@@ -5,40 +5,14 @@ block head
   script(type="text/javascript" src="static/js/test.js")
   script(type="text/javascript")
     $(function() {
-      $('button#go').click(function(event) {
-        $('#outputDiv').show();
-        $('#output').children().remove();
-        var seed = $('input[@name=seedSelection]:checked').data().seed;
-        var wl = new WeightedList(seed);
-        for (var i = 0; i < 10; i++) {
-          var shuf = wl.shuffle();
-          $('#output').append('<p>' + shuf.join(', ') + '</p>')
-        }
-      });
-      for (var i = 0; i < seeds.length; i++) {
-        var seed = seeds[i];
-        var id = 'field_' + i;
-        var field$ = $('#templates #entry').clone();
-        $('[type=radio]', field$).data({seed: seed}).attr('id', id);
-        $('.label', field$).attr('for', id).text('value:' + seed);
-        $('#fields').append(field$);
-      }
-      $('input[name=seedSelection]').change(function(event) {
-        $('button#go').show();
-      });
+      console.debug('O HAI')
     });
   
 block content
-  h1 Test
-  p Hit this button to run tests:
-    #fields
-    button#go.hidden Do it
+  h1 Test page
   
   #outputDiv.hidden
     h2 Output
     #output 
   
   #templates.hidden
-    #entry
-      input(type="radio" name="seedSelection")
-      label.label()
