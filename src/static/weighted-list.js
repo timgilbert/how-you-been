@@ -3,56 +3,87 @@
  * Every element of the list has an associated weight; if x has weight 
  * 1 and y has weight 2, y is twice as likely as x to be selected at random. 
  */
-function WeightedList() { 
-  //this.items = []
-  this.names = {}
-  this.totalWeight = 0
-  this.heap = new BinaryHeap(function(item) {
-    return item[0];
-  });
+function WeightedList(initial) { 
+  this.weights = {};
+  this.values = {};
+  this.length = 0;
+  
+  if (initial != null) {
+    for (var i = 0; i < initial.length; i++) {
+      this.addItem(initial[i]);
+    }
+  }
 }
 WeightedList.prototype = {
-  addItem: function(weight, name, data) {
-    this.heap.push([weight, name]);
-    this.names[name] = data
-    this.totalWeight += weight
+  /**
+   * Add an item to the list
+   */
+  addItem: function(weight, key, value) {
+    this.values[key] = value;
+    this.weights[key] = weight;
+    this.length++;
   },
   
-  addScore: function(name, score) {
-    
+  /** 
+   * Add the given weight to the list item with the given key
+   */
+  addWeight: function(key, weight) {
+    this.weights[key] += weight;
   },
   
-  // pick with replacement
-  // Algorithm from here: http://stackoverflow.com/a/2149533/87990
-  pick: function(n) {
+  /**
+   * Select n random elements (without replacement), default 1.
+   * If andRemove is true (default false), remove the elements
+   * from the list.  (This is what the pop() method does.)
+   */
+  peek: function(n, andRemove) {
     if (n == null) {
-      n = 1
+      n = 1;
     }
-    var result = [];
-    var i = 0;
-    var total = this.totalWeight;
-    var w = this.items[0][0];
-    var v = this.items[0][1];
-    while (n > 0) {
-      var x = total * (Math.pow(1 - Math.random(), 1.0 / n));
-      total -= x;
-      while (x > w) {
-        x -= w;
-        i++;
-        w = this.items[i][0];
-        v = this.items[i][1];
+    andRemove = !!andRemove;
+    
+    heap = this._buildWeightedHeap();
+    result = [];
+    
+    for (var i = 0; i < n; i++) {
+      key = head.pop();
+      result.push({key: key, value: this.values[key]});
+      if (andRemove) {
+        delete this.weights[key];
+        delete this.values[key];
+        this.length--;
       }
-      w -= x;
-      result.push({name: v, data: this.names[v]});
-      n--;
     }
     return result;
-  }
+  },
   
-  // pick without replacement involves a binary heap, see:
-  // http://eloquentjavascript.net/appendix2.html
-  pick_without_replacement: function(n) {
-    
+  /**
+   * Return the entire list in a random order
+   */
+  shuffle: function() {
+    return this.peek(this.length);
+  },
+  
+  /**
+   * 
+   */
+  pop: function(n) {
+    return peek(n, true);
+  },
+  
+  /**
+   * Build a WeightedHeap instance based on the data we've got
+   */
+  _buildWeightedHeap: function() {
+    var items = [];
+    for (var key in this.weights) {
+      // skip over Object.prototype monkey-patching per
+      // http://bonsaiden.github.com/JavaScript-Garden/#object.forinloop
+      if (this.weights.hasOwnProperty(key)) {
+        items.push([this.weights[key], key]);
+      }
+    }
+    return new _WeightedHeap(items);
   }
 }
 
@@ -63,15 +94,15 @@ WeightedList.prototype = {
 function _HeapNode(weight, value, total) {
   this.weight = weight;
   this.name = name;
-  this.total = total;
+  this.total = total;  // Total weight of this node and its children
 }
 /**
  * Note, we're using a heap structure here for its tree properties, not as a 
  * classic binary heap. A node heap[i] has children at heap[i<<1] and at 
  * heap[(i<<1)+1]. Its parent is at h[i>>1]. Heap[0] is vacant.
  */
-function WeightedHeap(items) {
-  this.heap = [null];   // Math works out better if we index array from 1
+function _WeightedHeap(items) {
+  this.heap = [null];   // Math is easier to read if we index array from 1
   
   // First put everything on the heap 
   for (var i = 0; i < items.length; i++) {
@@ -85,8 +116,8 @@ function WeightedHeap(items) {
   }
 }
 
-WeightedHeap.prototype = {
-  popRandom: function() {
+_WeightedHeap.prototype = {
+  pop: function() {
     // Start with a random amount of gas
     var gas = this.heap[1].total * Math.random();
     
