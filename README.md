@@ -6,7 +6,10 @@ is to make foursquare / last.fm mashup which looks at your foursquare history an
 then generates a playlist of songs related to the places you've been recently.  
 
 It's using [Google's webapp2][webapp2] along with [pyjade][pyjade] through 
-[jinja2][jinja2], since I've come to enjoy writing jade.
+[jinja2][jinja2], since I've come to enjoy writing jade.  I'm using 
+[clifff's fork][fork] of the [javascript-last.fm-api project][js-last] 
+since it has important bug fixes that haven't been merged yet.
+
 
 A working installation of this application should eventually be up and running at 
 [http://how-you-been.appspot.com/][appspot].
@@ -32,3 +35,5 @@ its root directory and run:
 [pyjade]:   https://github.com/syrusakbary/pyjade
 [answer]:   http://stackoverflow.com/a/4863970/87990
 [appspot]:  http://how-you-been.appspot.com/
+[fork]:     https://github.com/clifff/javascript-last.fm-api
+[js-last]:  https://github.com/fxb/javascript-last.fm-api
