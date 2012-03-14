@@ -24,13 +24,19 @@ class HomePage(JadeHandler):
     def get(self):
         self.render_response('index.jade')
 
+class TestPage(JadeHandler):
+    def get(self):
+        if self.app.debug:
+            self.render_response('test.jade')
+        else:
+            self.redirect('/')
+
 class PlaylistHandler(JadeHandler, FoursquareMixin):
     def get(self):
         
         if FoursquareMixin.OAUTH_COOKIE not in self.request.cookies:
             logging.debug('No cookie found at playlist, redirecting to homepage')
-            self.response.status = 302
-            self.response.location = '/'
+            self.redirect('/')
             return
         
         oauth = self.request.cookies[FoursquareMixin.OAUTH_COOKIE]
@@ -84,8 +90,7 @@ class FoursquareCallback(JadeHandler, FoursquareMixin):
         url = self.foursquareAccessTokenUrl(code)
         accessCode = self.getFoursquareAccessToken(code)
         
-        self.response.location = '/'
-        self.response.status = 302
+        self.redirect('/')
 
 class LastFmCallback(JadeHandler, LastFmMixin):
     """last.fm returns the user here after a successful auth.  We contact them to get a
@@ -96,14 +101,14 @@ class LastFmCallback(JadeHandler, LastFmMixin):
         token = self.request.GET['token']
         sessionKey = self.getLastFmSessionKey(token)
 
-        self.response.location = '/'
-        self.response.status = 302
+        self.redirect('/')
 
 deployedConfigFile = SafeConfigParser()
 deployedConfigFile.read('config/config.ini')
 
 app = webapp2.WSGIApplication(routes=[
-         ('/', HomePage),
+         ('/',                      HomePage),
+         ('/test',                  TestPage),
          ('/foursquare-redirect',   FoursquareRedirector),
          ('/foursquare-callback',   FoursquareCallback),
          ('/lastfm-redirect',       LastFmRedirector),

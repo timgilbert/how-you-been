@@ -24,6 +24,16 @@ class BaseHandler(webapp2.RequestHandler):
         context['http_status'] = http_status
         
         self.render_response('error.jade', **context)
+    
+    def redirect(self, path):
+        """Redirect the use to the given page, unless debug is on in which case 
+        just display a link they can click."""
+        if self.app.debug:
+            self.response.content_type = 'text/html'
+            self.response.write('<a href="' + path + '">' + path + '</a>')
+        else:
+            self.response.location = path
+            self.response.status = 302
 
 class JadeHandler(BaseHandler):
     # Per http://stackoverflow.com/a/7081653/87990
@@ -70,13 +80,7 @@ class RedirectHandler(JadeHandler):
             raise NotImplementedError('Subclasses of RedirectHandler must mix in a subclass of WebAuth')
         
         url = self.getAuthRedirectUrl()
-        self.response.location = url
-
-        if self.app.debug and True:
-            # This is a little annoying, commenting it out for now
-            self.response.write('Redirect: <a href="' + url + '">' + url + '</a>')
-        else:
-            self.response.status = 302
+        self.redirect(url)
 
     # Purely for debugging
     def get(self): 
