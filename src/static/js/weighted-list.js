@@ -5,12 +5,14 @@
  */
 function WeightedList(initial) { 
   this.weights = {};
-  this.values = {};
+  this.data = {};
   this.length = 0;
-  
+  this.hasData = false;
+  //console.debug(initial);
   if (initial != null) {
     for (var i = 0; i < initial.length; i++) {
-      this.addItem(initial[i]);
+      var item = initial[i]
+      this.addItem(item[0], item[1], item[2]);
     }
   }
 }
@@ -18,9 +20,13 @@ WeightedList.prototype = {
   /**
    * Add an item to the list
    */
-  addItem: function(weight, key, value) {
-    this.values[key] = value;
+  addItem: function(key, weight, data) {
+    //console.debug('k:', key, 'w:', weight, 'd:', data);
     this.weights[key] = weight;
+    if (data != null) {
+      this.hasData = true;
+      this.data[key] = data;
+    }
     this.length++;
   },
   
@@ -43,11 +49,17 @@ WeightedList.prototype = {
     andRemove = !!andRemove;
     
     heap = this._buildWeightedHeap();
+    console.debug('heap:', heap);
     result = [];
     
     for (var i = 0; i < n; i++) {
-      key = head.pop();
-      result.push({key: key, value: this.values[key]});
+      key = heap.pop();
+      console.debug('k:', key);
+      if (this.hasData) {
+        result.push({key: key, value: this.data[key]});
+      } else {
+        result.push(key);
+      }
       if (andRemove) {
         delete this.weights[key];
         delete this.values[key];
@@ -58,7 +70,7 @@ WeightedList.prototype = {
   },
   
   /**
-   * Return the entire list in a random order
+   * Return the entire list in a random order (note that this does not mutate the list)
    */
   shuffle: function() {
     return this.peek(this.length);
@@ -80,9 +92,10 @@ WeightedList.prototype = {
       // skip over Object.prototype monkey-patching per
       // http://bonsaiden.github.com/JavaScript-Garden/#object.forinloop
       if (this.weights.hasOwnProperty(key)) {
-        items.push([this.weights[key], key]);
+        items.push([key, this.weights[key]]);
       }
     }
+    console.log('items',items);
     return new _WeightedHeap(items);
   }
 }
@@ -106,12 +119,13 @@ function _WeightedHeap(items) {
   
   // First put everything on the heap 
   for (var i = 0; i < items.length; i++) {
-    var weight = items[i][0];
-    var value = items[i][1];
-    this.heap.append(new _HeapNode(weight, value, weight))
+    var weight = items[i][1];
+    var value = items[i][0];
+    this.heap.push(new _HeapNode(weight, value, weight));
   }
+  console.debug('_Wh heap', this.heap);
   // Now go through the heap and each node's weight to its parent
-  for (i = this.heap.length - 1; i >= 1; i--) {
+  for (i = this.heap.length - 1; i > 1; i--) {
     this.heap[i>>1].total += this.heap[i].total;
   }
 }
