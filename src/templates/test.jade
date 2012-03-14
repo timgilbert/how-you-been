@@ -2,7 +2,19 @@ extends "layout.jade"
 
 block head
   title test page for How You Been?
+  script(type="text/javascript" src="static/js/test.js")
+  script(type="text/javascript")
+    $(function() {
+      $('button#go').click(function(event) {
+        $('#outputDiv').show();
+      });
+    });
   
 block content
   h1 Test
-    
+  p Hit this button to run tests:
+    button#go Do it
+  
+  #outputDiv.hidden
+    h2 Output
+    p#output Output
