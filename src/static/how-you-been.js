@@ -4,13 +4,6 @@
  * Routines for generating playlist data and whatnot
  */
 
-/*
- * Startup script - this sets up actions that will be run as soon as the page is loaded.
- * NB: this script will be run for every page that loads this file.
- */
-$(function() {
-  // Event setup
-});
 
 function initPlaylistPage() {
   generatePlaylist();
@@ -103,9 +96,34 @@ function createTrack(data, index) {
 
   var inspiration = pickInspiration(data);
   $('.inspiration', entry$).text(inspiration);
-
+  $('button.search', entry$).click(function(event) {
+    searchForTrack(inspiration, entry$);
+  });
   //console.log(index + ": " + inspiration)
   return entry$;
+}
+
+/**
+ * 
+ */
+function searchForTrack(term, entry$) {
+  var lastfm = new LastFM({'apiKey': lastFmApiKey});
+  lastfm.track.search({'track': term}, {
+    'success': function(data) {
+      var hits = data.results['opensearch:totalResults'];
+      if (hits <= 0) {
+        $('.artist', entry$).text('???').show();
+        // We should look for another source of inspiration here
+        return;
+      }
+      $('.artist', entry$).text(hits + ' tracks found').show();
+      console.info(data);
+    },
+    'error': function(code, message) {
+      console.error('lastfm error ' + code + ': ' + message);
+    }
+  });
+  console.info('search:' + term);
 }
 
 /**

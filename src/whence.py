@@ -28,7 +28,7 @@ class PlaylistHandler(JadeHandler, FoursquareMixin):
     def get(self):
         
         if FoursquareMixin.OAUTH_COOKIE not in self.request.cookies:
-            logging.info('No cookie found at playlist, redirecting to homepage')
+            logging.debug('No cookie found at playlist, redirecting to homepage')
             self.response.status = 302
             self.response.location = '/'
             return
@@ -43,6 +43,7 @@ class PlaylistHandler(JadeHandler, FoursquareMixin):
         
         context = {
             'oauth':    oauth,
+            'lastFmApiKey': self.cfg('api_key', section='last.fm'),
             'pretty':   pprint.pformat(items, 1, 120),
             'inspiration':   pprint.pformat(inspiration, 1, 120),
             'encoding':   checkins['encoding'],

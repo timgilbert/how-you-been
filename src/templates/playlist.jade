@@ -2,7 +2,12 @@ extends "layout.jade"
 
 block head
   title How You Been? Playlist
+  script(type="text/javascript" src="static/lastfm.api.md5.js")
+  script(type="text/javascript" src="static/lastfm.api.js")
+  script(type="text/javascript" src="static/lastfm.api.cache.js")
   script(type="text/javascript")
+    // Note that the following value is interpolated by the server
+    var lastFmApiKey = "{{lastFmApiKey}}";
     $(function() { initPlaylistPage(); });
 
 block content
@@ -18,6 +23,7 @@ block content
     #track.track
       span.inspiration item
       button.search Find song
+      span.artist.hidden Artist
     
     #song
       p song!

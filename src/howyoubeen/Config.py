@@ -20,20 +20,20 @@ class ConfigAware:
     def _peek(self, group, name):
         return ConfigAware._memo_dict.get(group + '.' + name)
     
-    def cfg(self, settingName, settingGroup=None):
+    def cfg(self, settingName, section=None):
         """Return a safely-encoded setting from the given section of the config"""
-        if settingGroup is None:
+        if section is None:
             if not hasattr(self, 'DEFAULT_SETTING_GROUP'):
                 raise NotImplementedError('DEFAULT_SETTING_GROUP must be defined')
-            settingGroup = self.DEFAULT_SETTING_GROUP
+            section = self.DEFAULT_SETTING_GROUP
         
         # Check the cache
-        if self._peek(settingName, settingGroup) is not None: 
-            return self._peek(settingName, settingGroup)
+        if self._peek(settingName, section) is not None: 
+            return self._peek(settingName, section)
         
         app = webapp2.get_app()
         rawSetting = app.config.get('deployedConfigFile')
         # XXX not certain we always need this
-        safeSetting = urllib.quote(rawSetting.get(settingGroup, settingName))
+        safeSetting = urllib.quote(rawSetting.get(section, settingName))
         
-        return self._poke(settingName, settingGroup, safeSetting)
+        return self._poke(settingName, section, safeSetting)
