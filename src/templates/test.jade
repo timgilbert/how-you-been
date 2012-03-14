@@ -7,6 +7,21 @@ block head
     $(function() {
       $('button#go').click(function(event) {
         $('#outputDiv').show();
+        $('#output').children().remove();
+        var wl = new WeightedList([
+            ['a', 1], 
+            ['b', 1],
+            ['c', 4],
+            ['d', 1],
+            ['e', 4],
+            ['f', 1],
+            ['g', 1]]);
+        for (var i = 0; i < 10; i++) {
+          var shuf = wl.shuffle();
+          // shuf = ['a', 'b', 'c'];//wl.shuffle();
+          //console.log('shuffle', shuf);
+          $('#output').append('<p>' + shuf.join(', ') + '</p>')
+        }
       });
     });
   
@@ -18,3 +33,4 @@ block content
   #outputDiv.hidden
     h2 Output
     p#output Output
+    

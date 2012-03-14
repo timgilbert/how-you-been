@@ -49,12 +49,12 @@ WeightedList.prototype = {
     andRemove = !!andRemove;
     
     heap = this._buildWeightedHeap();
-    console.debug('heap:', heap);
+    //console.debug('heap:', heap);
     result = [];
     
     for (var i = 0; i < n; i++) {
       key = heap.pop();
-      console.debug('k:', key);
+      //console.debug('k:', key);
       if (this.hasData) {
         result.push({key: key, value: this.data[key]});
       } else {
@@ -95,7 +95,7 @@ WeightedList.prototype = {
         items.push([key, this.weights[key]]);
       }
     }
-    console.log('items',items);
+    //console.log('items',items);
     return new _WeightedHeap(items);
   }
 }
@@ -106,7 +106,7 @@ WeightedList.prototype = {
  */
 function _HeapNode(weight, value, total) {
   this.weight = weight;
-  this.name = name;
+  this.value = value;
   this.total = total;  // Total weight of this node and its children
 }
 /**
@@ -123,11 +123,11 @@ function _WeightedHeap(items) {
     var value = items[i][0];
     this.heap.push(new _HeapNode(weight, value, weight));
   }
-  console.debug('_Wh heap', this.heap);
   // Now go through the heap and each node's weight to its parent
   for (i = this.heap.length - 1; i > 1; i--) {
     this.heap[i>>1].total += this.heap[i].total;
   }
+  //console.debug('_Wh heap', this.heap);
 }
 
 _WeightedHeap.prototype = {
