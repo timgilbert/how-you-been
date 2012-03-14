@@ -6,6 +6,11 @@ from webapp2_extras import jinja2, json
 import Inspiration
 
 class BaseHandler(webapp2.RequestHandler):
+    
+    # If this is set to true, and the app is in debug mode, redirects 
+    # will be displayed to the user instead of immediately executed.
+    VISIBLE_REDIRECTS = False
+    
     def handle_exception(self, exception, debug):
         # Todo: not certain this does more harm than good
         logging.exception(exception)
@@ -28,7 +33,7 @@ class BaseHandler(webapp2.RequestHandler):
     def redirect(self, path):
         """Redirect the use to the given page, unless debug is on in which case 
         just display a link they can click."""
-        if self.app.debug:
+        if self.app.debug and self.VISIBLE_REDIRECTS:
             self.response.content_type = 'text/html'
             self.response.write('<a href="' + path + '">' + path + '</a>')
         else:

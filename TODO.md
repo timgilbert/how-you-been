@@ -17,6 +17,8 @@ that as the week range to get data from.
 
 * Possible name change to haunting refrain?
 
+* Publish weighted list as its own library, with unit tests and the like
+
 Example record with event
 -------------------------
 
