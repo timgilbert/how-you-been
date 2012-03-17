@@ -15,7 +15,6 @@ function initHomePage() {
     $('#foursquareLoggedInMessage').show();
   }
   if ($.cookie('lastfm.sessionKey')) {
-    console.debug('Yikes');
     $('#lastfmLogin').hide();
     $('#lastfmLoggedInMessage').show();
   }
@@ -35,46 +34,138 @@ function generatePlaylist() {
       parseInspiration
   );
 }
+
 /**
- * Given one of the inspiration objects returned from /inspiration.json,
- * pick a random field.
+ * Main interface to the inspiration list returned by the server.  Each track 
+ * will have one of these attached.  Most tracks will only use the first one, 
+ * but in case there are no hits on the first inspiration, we'll drop back to 
+ * the next chosen one.
  * 
- * I'm tempted to make the percentage distribution configurable at the server level, 
- * but this will suffice for now 
  */
-function pickInspiration(inspiration) {
-  // Generate a random number from 0-99
-  var pick = Math.floor(Math.random() * 100);
-  var key = '';
-  
-  if (pick <= 65) {
-    key = 'venueName';
-  }
-  else if (pick <= 75) {
-    key = 'categoryName';
-  }
-  else if (pick <= 85) {
-    key = 'street';
-  }
-  else if (pick <= 90) {
-    if (inspiration.crossStreet != null) {
-      key = 'crossStreet';
-    } else {
-      key = 'street';
+function InspirationStore(inspiration) {
+  // TODO: could probably generalize this out a bit more
+  var inspirationWeights = {
+    venueName: 50,
+    eventName: 50,
+    categoryName: 25,
+    street: 10,
+    crossStreet: 10,
+    city: 5,
+    state: 2,
+    country: 1
+  };
+  var weightedList = new WeightedList();
+  for (field in inspiration) {
+    if (inspiration.hasOwnProperty(field)) {
+      weightedList.push(field, inspirationWeights[field], inspiration[field]);
     }
   }
-  else if (pick <= 95) {
-    key = 'city';
+  this.unusedInspirations = weightedList.shuffle();
+  this.usedInspirations = [];
+  this.getNextInspiration();
+  
+  this.lastfm = new LastFM({'apiKey': lastFmApiKey});
+}
+
+InspirationStore.prototype = {
+  /** Go to the next possible inspiration */
+  getNextInspiration: function() {
+    this.usedInspirations.push(this.activeInspiration);
+    this.activeInspiration = this.unusedInspirations.shift();
+    return this.activeInspiration;
+  },
+  
+  /** 
+   * Search the inspiration lists until we find one that returns some results;
+   * return those results
+   * 
+   * TODO: should definitely use jquery custom events or similar for this
+   */
+  searchForTrack: function(entry$) {
+    var result = null;
+    var inspirationStoreInstance = this;
+    
+    this.lastfm.track.search({'track': this.activeInspiration.value}, {
+      'success': function(data) {
+        trackStore = new TrackStore(data);
+        console.debug('trackStore:', trackStore);
+        entry$.trigger('lastFmReady', trackStore);
+      },
+      'error': function(code, message) {
+        console.error('lastfm error ' + code + ': ' + message);
+        return null;
+      }
+    });
+    
+    return result;
   }
-  else if (pick <= 98) {
-    key = 'state';
-  }
-  else {
-    key = 'country';
+}
+
+function TrackStore(data) {
+  this.hits = data.results['opensearch:totalResults'];
+  if (this.hits <= 0) {
+    return;
   }
   
-  return inspiration[key];
+  //console.debug('d', data);
+  //console.debug('dr', data.results);
+  //console.debug('drt', data.results.trackmatches);
+  var matches = data.results.trackmatches.track;
+  if (matches == null) {
+    console.error('Unable to find data.results.trackmatches.track in', data)
+  }
+  this. trackList = new WeightedList();
+  
+  for (var i = 0; i < matches.length; i++) {
+    var track = new Track(matches[i]);
+    var weight = 10;
+    
+    // Prefer streamable tracks
+    if (track.streamble) {
+      weight *= 10;
+    }
+    // Prefer full tracks
+    if (track.fulltrack) {
+      weight *= 5;
+    }
+    // TBD: prefer artists this user likes (via last.fm/tasteometer)
+    // TBD (maybe) prefer globally popular tracks? via track.listeners
+    this.trackList.push(track.key, weight, track);
+  }
+   
+  //this.data = data;
 }
+TrackStore.prototype = {
+  /**
+   * Return the best track (eg, pop the next item from the weighted list)
+   */
+  best: function() {
+    return this.trackList.pop(1, true);
+  }
+}
+
+/** 
+ * This is (shallow) facade around last.fm/track.Search's results.trackMatches.track[i]
+ */ 
+function Track(matchData) {
+  this.artist = matchData.artist;
+  this.name = matchData.name;
+  this.url = matchData.url;
+  this.listeners = matchData.listeners;
+  
+  this.streamable = matchData.streamable['#text'] == '1';
+  this.fullTrack = this.streamable && matchData.streamable['fulltrack'] == '1';
+  
+  for (var i = 0; i < matchData.image; i++) {
+    if (matchData.image[i].size == 'large') {
+      this.image = matchData.image[i]['#text'];
+    }
+  }
+  
+  // Good enough for a hash-table key, though we could theoretically get collisions
+  this.key = this.artist + ' ** ' + this.name;
+}
+
 
 // Ah, javascript, you never cease to amaze me with your elegance
 // This is from http://stackoverflow.com/a/1404100/87990
@@ -90,41 +181,40 @@ function getURLParameter(name) {
 /**
  * Clone a single copy of the track div, attach data to it, and return it
  */
-function createTrack(data, index) {
+function createTrack(inspirationStore, index) {
   var entry$ = $('#templates #track').clone();
-  entry$.data({'inspiration': data, 'index': index});
-
-  var inspiration = pickInspiration(data);
-  $('.inspiration', entry$).text(inspiration);
-  $('button.search', entry$).click(function(event) {
-    searchForTrack(inspiration, entry$);
+  
+  //entry$.data({'inspiration': inspirationStore, 'index': index});
+  $('.inspiration', entry$).text(inspirationStore.activeInspiration.value);
+  
+  // When we get a call back from last.fm, this handler will be called
+  entry$.bind('lastFmReady', function(event, trackStore) {
+    console.debug('lastFmReady', trackStore);
+    $('.inspiration', this).text(inspirationStore.activeInspiration.value);
+    if (trackStore.hits <= 0) {
+      // No hits found
+      $('.notfound', this).show();
+      return;
+    }
+    $('.found', this).show();
+    $('.tracksFound', this).text(trackStore.hits);
+    
+    var track = trackStore.best();
+    $('.artist', this).text(track.artist);
+    $('.name', this).text(track.name);
+    $('.image', this).attr({href: track.image});
   });
+  
+  // Button handler.  If this is successful, a 'lastFmReady' event will be fired 
+  // (see handler above)
+  $('button.search', entry$).click(function(event) {
+    inspirationStore.searchForTrack(entry$);
+  });
+
   //console.log(index + ": " + inspiration)
   return entry$;
 }
 
-/**
- * 
- */
-function searchForTrack(term, entry$) {
-  var lastfm = new LastFM({'apiKey': lastFmApiKey});
-  lastfm.track.search({'track': term}, {
-    'success': function(data) {
-      var hits = data.results['opensearch:totalResults'];
-      if (hits <= 0) {
-        $('.artist', entry$).text('???').show();
-        // We should look for another source of inspiration here
-        return;
-      }
-      $('.artist', entry$).text(hits + ' tracks found').show();
-      console.info(data);
-    },
-    'error': function(code, message) {
-      console.error('lastfm error ' + code + ': ' + message);
-    }
-  });
-  console.info('search:' + term);
-}
 
 /**
  * After a successful Ajax call, go through the resulting list and populate 
@@ -132,7 +222,7 @@ function searchForTrack(term, entry$) {
  */
 function parseInspiration(inspirationList) {
   for (var i = 0; i < inspirationList.length; i++) {
-    var data = inspirationList[i]; 
-    $('#playlist').append(createTrack(inspirationList[i], i));
+    var inspiration = new InspirationStore(inspirationList[i]);
+    $('#playlist').append(createTrack(inspiration, i));
   }
 }

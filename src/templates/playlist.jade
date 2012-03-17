@@ -21,9 +21,19 @@ block content
     
     // Basic template for a single track listing
     #track.track
-      span.inspiration item
+      span.inspiration inspiration
       button.search Find song
-      span.artist.hidden Artist
+      // This is displayed is no songs were found
+      .notfound.hidden ??? No songs found
+      // This is displayed is sngs were found
+      .found.hidden
+        p.summary 
+          span.tracksFound XYZ
+          | tracks found
+        p.artist Artist
+        p.name name
+        // TBD: width / height
+        img(href="")
     
     #song
       p song!

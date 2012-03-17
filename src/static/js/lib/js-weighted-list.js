@@ -45,12 +45,15 @@ WeightedList.prototype = {
    * Select n random elements (without replacement), default 1.
    * If andRemove is true (default false), remove the elements
    * from the list.  (This is what the pop() method does.)
+   * If returnOnlyData is true (default false), returns a list of 
+   * data elements only (instead of {key: k, value: v} pairs)
    */
-  peek: function(n, andRemove) {
+  peek: function(n, andRemove, returnOnlyData) {
     if (n == null) {
       n = 1;
     }
     andRemove = !!andRemove;
+    returnOnlyData = !!returnOnlyData;
     
     heap = this._buildWeightedHeap();
     //console.debug('heap:', heap);
@@ -60,13 +63,16 @@ WeightedList.prototype = {
       key = heap.pop();
       //console.debug('k:', key);
       if (this.hasData) {
+        if (returnOnlyData) {
+          result.push(this.data[key]);
+        }
         result.push({key: key, value: this.data[key]});
       } else {
         result.push(key);
       }
       if (andRemove) {
         delete this.weights[key];
-        delete this.values[key];
+        delete this.data[key];
         this.length--;
       }
     }
@@ -81,10 +87,17 @@ WeightedList.prototype = {
   },
   
   /**
-   * 
+   * Return the data for the entire list in a random order
    */
-  pop: function(n) {
-    return peek(n, true);
+  shuffleData: function() {
+    return this.peek(this.length, false, true);
+  },
+  
+  /**
+   * Retrieve items from the list and subsequently delete them.
+   */
+  pop: function(n, returnOnlyData) {
+    return this.peek(n, true, returnOnlyData);
   },
   
   /**

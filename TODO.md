@@ -1,15 +1,6 @@
 TODO
 ====
 
-* In general, the server should perform last.fm and foursquare authentication and 
-then pass those values to the front-end.  The front-end should store them in a 
-session cookie.  User-facing URLs should display conditionally based on the existence 
-of these cookies (I'm assuming no CDN caching for now).
-
-* I may need to develop some sort of weighted-probability thing for javascript, since
-I have several cases where I need to choose between several alternatives, I want to 
-prefer some outcomes, and the complete set of possible outcomes is not know beforehand.
-
 * The user should be able to select a particular week from a calendar picker and use 
 that as the week range to get data from.
 
@@ -17,7 +8,23 @@ that as the week range to get data from.
 
 * Possible name change to haunting refrain?
 
+* If we exhaust every possible search term for a track, there should be a placeholder,
+which should probably be [4'33"][4-33].
+
+Finished
+--------
+
 * Publish weighted list as its own library, with unit tests and the like
+(it's up at [js-weighted-list][js-weighted-list])
+* I may need to develop some sort of weighted-probability thing for javascript, since
+I have several cases where I need to choose between several alternatives, I want to 
+prefer some outcomes, and the complete set of possible outcomes is not know beforehand.
+
+* In general, the server should perform last.fm and foursquare authentication and 
+then pass those values to the front-end.  The front-end should store them in a 
+session cookie.  User-facing URLs should display conditionally based on the existence 
+of these cookies (I'm assuming no CDN caching for now).
+
 
 Example record with event
 -------------------------
@@ -55,3 +62,6 @@ Example record with event
                 u'name': u'The Knitting Factory',
                 u'stats': {u'checkinsCount': 7411, u'tipCount': 63, u'usersCount': 5021},
                 u'verified': False}},
+
+[4-33]: http://www.last.fm/music/John+Cage/4%2733%27%27
+[js-weighted-list]: https://github.com/timgilbert/js-weighted-list
