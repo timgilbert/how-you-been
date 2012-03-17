@@ -121,7 +121,7 @@ function TrackStore(data) {
     var weight = 10;
     
     // Prefer streamable tracks
-    if (track.streamble) {
+    if (track.streamable) {
       weight *= 10;
     }
     // Prefer full tracks
@@ -200,8 +200,10 @@ function createTrack(inspirationStore, index) {
     $('.tracksFound', this).text(trackStore.hits);
     
     var track = trackStore.best();
+    console.debug(track);
     $('.artist', this).text(track.artist);
     $('.name', this).text(track.name);
+    $('.name', this).attr({href: track.url});
     $('.image', this).attr({href: track.image});
   });
   

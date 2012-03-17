@@ -76,6 +76,9 @@ WeightedList.prototype = {
         this.length--;
       }
     }
+    if (n == 1) {
+      return result[0];
+    }
     return result;
   },
   
