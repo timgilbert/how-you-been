@@ -9,3 +9,4 @@ src/config/config.ini
 src/config/config.PROD.ini
 src/config/config.DEV.ini
 *.tmproj
+.DS_Store

@@ -21,8 +21,10 @@ from howyoubeen import Inspiration
 
 
 class HomePage(JadeHandler):
-    def get(self):
-        self.render_response('index.jade')
+    def get(self): self.render_response('index.jade')
+
+class AboutPage(JadeHandler):
+    def get(self): self.render_response('about.jade')
 
 class TestPage(JadeHandler):
     def get(self):
@@ -108,6 +110,7 @@ deployedConfigFile.read('config/config.ini')
 
 app = webapp2.WSGIApplication(routes=[
          ('/',                      HomePage),
+         ('/about',                 AboutPage),
          ('/test',                  TestPage),
          ('/foursquare-redirect',   FoursquareRedirector),
          ('/foursquare-callback',   FoursquareCallback),
