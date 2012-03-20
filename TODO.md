@@ -12,7 +12,7 @@ that as the week range to get data from.
 which should probably be [4'33"][4-33].
 
 * last.fm users should be able to optionally provide their usernames instead of logging 
-all the way in, or opt-out of last.fm authentication entirely and just get a list
+all the way in, or opt-out of last.fm authentication entirely and just get a playlist
 
 * Finish the last.fm playlist creation bit for logged-in users
 
@@ -21,6 +21,8 @@ which [Spotibot][spotibot] uses.
 
 * Better yet, I should be able to create a playlist in rdio, since they have a better 
 API.
+
+* We should look for badges earned during the week and bubble them up
 
 Finished
 --------
