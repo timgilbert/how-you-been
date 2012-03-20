@@ -26,6 +26,9 @@ class HomePage(JadeHandler):
 class AboutPage(JadeHandler):
     def get(self): self.render_response('about.jade')
 
+class GammaPage(JadeHandler):
+    def get(self): self.render_response('gamma.jade')
+
 class TestPage(JadeHandler):
     def get(self):
         if self.app.debug:
@@ -109,7 +112,8 @@ deployedConfigFile = SafeConfigParser()
 deployedConfigFile.read('config/config.ini')
 
 app = webapp2.WSGIApplication(routes=[
-         ('/',                      HomePage),
+         ('/',                      GammaPage),
+         ('/home',                  HomePage),
          ('/about',                 AboutPage),
          ('/test',                  TestPage),
          ('/foursquare-redirect',   FoursquareRedirector),

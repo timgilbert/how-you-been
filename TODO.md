@@ -6,7 +6,10 @@ that as the week range to get data from.
 
 * Checkins for events should have those event names get high priority.
 
-* Possible name change to haunting refrain?
+* Possible name change?
+
+* Pass venue icons from back-end to front-end (and probably scale them up or use 
+smaller album icons)
 
 * If we exhaust every possible search term for a track, there should be a placeholder,
 which should probably be [4'33"][4-33].
