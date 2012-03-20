@@ -11,6 +11,17 @@ that as the week range to get data from.
 * If we exhaust every possible search term for a track, there should be a placeholder,
 which should probably be [4'33"][4-33].
 
+* last.fm users should be able to optionally provide their usernames instead of logging 
+all the way in, or opt-out of last.fm authentication entirely and just get a list
+
+* Finish the last.fm playlist creation bit for logged-in users
+
+* I should shamelessly rip off (with credit) the drag-and-drop Spotify creation method 
+which [Spotibot][spotibot] uses.
+
+* Better yet, I should be able to create a playlist in rdio, since they have a better 
+API.
+
 Finished
 --------
 
@@ -65,3 +76,4 @@ Example record with event
 
 [4-33]: http://www.last.fm/music/John+Cage/4%2733%27%27
 [js-weighted-list]: https://github.com/timgilbert/js-weighted-list
+[spotibot]: http://spotibot.com/playlist/
