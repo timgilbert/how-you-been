@@ -27,6 +27,7 @@ class AboutPage(JadeHandler):
     def get(self): self.render_response('about.jade')
 
 class GammaPage(JadeHandler):
+    """Used for live deployment whilst in gamma"""
     def get(self): self.render_response('gamma.jade')
 
 class TestPage(JadeHandler):
