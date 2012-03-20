@@ -6,6 +6,8 @@
  * This file is licensed under the MIT License, please see MIT-LICENSE.txt for details.
  * 
  * https://github.com/timgilbert/js-weighted-list is its home.
+ * 
+ * XXX Something is wrong with size=1 lists
  */
 function WeightedList(initial) { 
   this.weights = {};
